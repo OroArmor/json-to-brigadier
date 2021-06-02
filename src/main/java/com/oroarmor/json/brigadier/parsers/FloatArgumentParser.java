@@ -22,38 +22,30 @@
  * SOFTWARE.
  */
 
-package com.oroarmor.json.brigadier;
+package com.oroarmor.json.brigadier.parsers;
 
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.oroarmor.json.brigadier.parsers.*;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+public class FloatArgumentParser {
+    @SuppressWarnings("unchecked")
+    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(JsonObject object) {
+        FloatArgumentType floatArgument;
+        JsonObject argument = object.get("argument").getAsJsonObject();
+        if(argument.has("min")) {
+            float min = argument.get("min").getAsFloat();
+            if (argument.has("max")) {
+                floatArgument = FloatArgumentType.floatArg(min, argument.get("max").getAsFloat());
+            } else {
+                floatArgument = FloatArgumentType.floatArg(min);
+            }
+        } else {
+            floatArgument = FloatArgumentType.floatArg();
+        }
 
-public class ArgumentParsers {
-    private static final Map<String, ArgumentParser> PARSERS = new HashMap<>();
-
-    public static void register(String type, ArgumentParser parser) {
-        PARSERS.put(type, parser);
-    }
-
-    public static ArgumentParser get(String type) {
-        return PARSERS.get(type);
-    }
-
-    public interface ArgumentParser {
-        <Type, Self extends ArgumentBuilder<Type, Self>> ArgumentBuilder<Type, Self> parse(JsonObject commandObject);
-    }
-
-    static {
-        register("brigadier:literal", LiteralArgumentParser::parse);
-        register("brigadier:integer", IntegerArgumentParser::parse);
-        register("brigadier:boolean", BooleanArgumentParser::parse);
-        register("brigadier:double", DoubleArgumentParser::parse);
-        register("brigadier:float", FloatArgumentParser::parse);
-        register("brigadier:string", StringArgumentParser::parse);
-        register("brigadier:long", LongArgumentParser::parse);
+        return (ArgumentBuilder<T, S>) RequiredArgumentBuilder.argument(object.get("name").getAsString(), floatArgument);
     }
 }
