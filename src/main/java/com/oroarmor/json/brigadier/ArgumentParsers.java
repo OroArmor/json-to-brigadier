@@ -22,12 +22,34 @@
  * SOFTWARE.
  */
 
-package com.oroarmor.oro_mod_template;
+package com.oroarmor.json.brigadier;
 
-import net.fabricmc.api.ModInitializer;
+import com.google.gson.JsonObject;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.oroarmor.json.brigadier.parsers.IntegerArgumentParser;
+import com.oroarmor.json.brigadier.parsers.LiteralArgumentParser;
 
-public class Mod implements ModInitializer {
-	@Override
-	public void onInitialize() {
-	}
+import java.util.HashMap;
+import java.util.Map;
+
+public class ArgumentParsers {
+    private static final Map<String, ArgumentParser> PARSERS = new HashMap<>();
+
+    public static void register(String type, ArgumentParser parser) {
+        PARSERS.put(type, parser);
+    }
+
+    public static ArgumentParser get(String type) {
+        return PARSERS.get(type);
+    }
+
+    public interface ArgumentParser {
+        <Type, Self extends ArgumentBuilder<Type, Self>> ArgumentBuilder<Type, Self> parse(JsonObject commandObject);
+    }
+
+    static {
+        register("brigadier:literal", LiteralArgumentParser::parse);
+        register("brigadier:integer", IntegerArgumentParser::parse);
+
+    }
 }

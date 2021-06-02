@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "argument" : {
+    "type": "brigadier:literal"
+  },
+  "children": [
+    {
+      "name": "value",
+      "argument": {
+        "type": "brigadier:integer",
+        "min": 0,
+        "max": 1
+      },
+      "executes": "com.oroarmor.json.brigadier.TestSimpleCommand::runCommand"
+    }
+  ]
+}
