@@ -69,11 +69,6 @@ public final class JsonToBrigadier {
      */
     public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(String json) {
         JsonObject commandObject = JsonParser.parseString(json).getAsJsonObject();
-
-        LiteralArgumentBuilder<T> argumentBuilder = LiteralArgumentBuilder.literal(commandObject.get("name").getAsString());
-
-        addChildren(argumentBuilder, commandObject);
-
         return parseCommand(commandObject);
     }
 
@@ -98,22 +93,18 @@ public final class JsonToBrigadier {
                 throw new RuntimeException(e);
             }
 
-            Method method = null;
             try {
-                method = executeClass.getDeclaredMethod(description[1], CommandContext.class);
+                final Method method = executeClass.getDeclaredMethod(description[1], CommandContext.class);
+                builder.executes(source -> {
+                    try {
+                        return (Integer) method.invoke(null, source);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-            System.out.println(method);
-
-            Method finalMethod = method;
-            builder.executes(source -> {
-                try {
-                    return (Integer) finalMethod.invoke(source);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
         }
 
         return builder;

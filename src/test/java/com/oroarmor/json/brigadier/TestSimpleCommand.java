@@ -28,7 +28,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,8 +41,10 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 public class TestSimpleCommand {
-    private static int runCommand(CommandContext<Object> o) {
-        System.out.println("Test Command");
+    private static boolean runSuccessful = false;
+
+    public static int runCommand(CommandContext<Object> o) {
+        runSuccessful = true;
         return 1;
     }
 
@@ -53,5 +58,26 @@ public class TestSimpleCommand {
         CommandNode<Object> jsonCommandNode = JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestSimpleCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/test_command.json")).toURI())).build();
 
         Assertions.assertTrue(CommandNodeEquals.equals(manualCommandNode, jsonCommandNode), "Parser correctly parses command from json");
+    }
+
+    @Test
+    public void testRunCommand() throws URISyntaxException, CommandSyntaxException {
+        LiteralArgumentBuilder<Object> manualCommandNode = literal("test")
+                .then(argument("value", integer(0, 1))
+                        .executes(TestSimpleCommand::runCommand));
+
+        LiteralArgumentBuilder<Object> jsonCommandNode = (LiteralArgumentBuilder<Object>) JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestSimpleCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/test_command.json")).toURI()));
+
+
+        CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
+        dispatcher.register(manualCommandNode);
+        dispatcher.execute("test 1", new Object());
+        Assertions.assertTrue(runSuccessful, "Manual command ran successfully");
+        runSuccessful = false;
+
+        dispatcher = new CommandDispatcher<>();
+        dispatcher.register(jsonCommandNode);
+        dispatcher.execute("test 1", new Object());
+        Assertions.assertTrue(runSuccessful, "Json command ran successfully");
     }
 }

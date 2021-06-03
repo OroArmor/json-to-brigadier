@@ -14,6 +14,8 @@ Add the dependency via `implementation "com.oroarmor:json-to-brigadier:1.0.0`
 
 The API has two main methods to use. `JsonToBrigadier.parse(Path)` and `JsonToBrigadier.parse(String)`. The first method takes in a path to the file, and then calls the second with the contents of that file. They both return an `ArgumentBuilder` object representing the command structure specified by the JSON string or file.
 
+The method given in `executes` must have the signature `public static int`.
+
 Example:
 
 ```json

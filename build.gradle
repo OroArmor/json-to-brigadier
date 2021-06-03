@@ -180,7 +180,7 @@ task generateChangelog {
             contents += line + "\n"
     }
 
-    def changelogs = contents.split("\\-\\-\\-\\-")
+    def changelogs = contents.split("----")
     project.ext.changelog = changelogs.find { log -> log.contains(project.version) }
     println project.ext.changelog
 }
