@@ -26,7 +26,6 @@ package com.oroarmor.json.brigadier.parsers;
 
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 
@@ -35,7 +34,7 @@ public class FloatArgumentParser {
     public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(JsonObject object) {
         FloatArgumentType floatArgument;
         JsonObject argument = object.get("argument").getAsJsonObject();
-        if(argument.has("min")) {
+        if (argument.has("min")) {
             float min = argument.get("min").getAsFloat();
             if (argument.has("max")) {
                 floatArgument = FloatArgumentType.floatArg(min, argument.get("max").getAsFloat());

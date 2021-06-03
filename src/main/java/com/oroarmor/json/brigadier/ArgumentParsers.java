@@ -24,28 +24,19 @@
 
 package com.oroarmor.json.brigadier;
 
-import com.google.gson.JsonObject;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.oroarmor.json.brigadier.parsers.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.JsonObject;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.oroarmor.json.brigadier.parsers.*;
+
+/**
+ * The different argument parsers for the different argument types that brigadier supports.
+ * More parsers can be added with {@link ArgumentParsers#register(String, ArgumentParser)}
+ */
 public class ArgumentParsers {
     private static final Map<String, ArgumentParser> PARSERS = new HashMap<>();
-
-    public static void register(String type, ArgumentParser parser) {
-        PARSERS.put(type, parser);
-    }
-
-    public static ArgumentParser get(String type) {
-        return PARSERS.get(type);
-    }
-
-    public interface ArgumentParser {
-        <Type, Self extends ArgumentBuilder<Type, Self>> ArgumentBuilder<Type, Self> parse(JsonObject commandObject);
-    }
 
     static {
         register("brigadier:literal", LiteralArgumentParser::parse);
@@ -55,5 +46,45 @@ public class ArgumentParsers {
         register("brigadier:float", FloatArgumentParser::parse);
         register("brigadier:string", StringArgumentParser::parse);
         register("brigadier:long", LongArgumentParser::parse);
+    }
+
+    /**
+     * Register a new parser type
+     *
+     * @param type   The string for the parser type. Should follow {@code application:argument}.
+     *               i.e. {@code brigadier:integer} for {@link com.mojang.brigadier.arguments.IntegerArgumentType}
+     * @param parser The parser for the type
+     */
+    public static void register(String type, ArgumentParser parser) {
+        if (PARSERS.containsKey(type)) {
+            throw new IllegalArgumentException(type + " already exists");
+        }
+        PARSERS.put(type, parser);
+    }
+
+    /**
+     * Gets the parser from the type
+     *
+     * @param type The type for the parser
+     * @return The parser
+     */
+    public static ArgumentParser get(String type) {
+        return PARSERS.get(type);
+    }
+
+    /**
+     * A Functional Interface that parses arguments
+     */
+    @FunctionalInterface
+    public interface ArgumentParser {
+        /**
+         * Parses a JsonObject into a command. Do not parse for children in this method
+         *
+         * @param commandObject The JsonObject for the command
+         * @param <Type>        The type of the command context
+         * @param <Self>        The {@link ArgumentBuilder} self type
+         * @return An {@link ArgumentBuilder} representing this command node only
+         */
+        <Type, Self extends ArgumentBuilder<Type, Self>> ArgumentBuilder<Type, Self> parse(JsonObject commandObject);
     }
 }

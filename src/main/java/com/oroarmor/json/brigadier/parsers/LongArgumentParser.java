@@ -25,7 +25,6 @@
 package com.oroarmor.json.brigadier.parsers;
 
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -35,7 +34,7 @@ public class LongArgumentParser {
     public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(JsonObject object) {
         LongArgumentType longArgument;
         JsonObject argument = object.get("argument").getAsJsonObject();
-        if(argument.has("min")) {
+        if (argument.has("min")) {
             int min = argument.get("min").getAsInt();
             if (argument.has("max")) {
                 longArgument = LongArgumentType.longArg(min, argument.get("max").getAsInt());

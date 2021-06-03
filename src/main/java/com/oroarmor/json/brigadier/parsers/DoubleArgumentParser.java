@@ -34,7 +34,7 @@ public class DoubleArgumentParser {
     public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(JsonObject object) {
         DoubleArgumentType doubleArgument;
         JsonObject argument = object.get("argument").getAsJsonObject();
-        if(argument.has("min")) {
+        if (argument.has("min")) {
             double min = argument.get("min").getAsDouble();
             if (argument.has("max")) {
                 doubleArgument = DoubleArgumentType.doubleArg(min, argument.get("max").getAsDouble());

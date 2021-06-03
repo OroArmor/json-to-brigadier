@@ -24,6 +24,11 @@
 
 package com.oroarmor.json.brigadier;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -31,13 +36,18 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Collectors;
-
+/**
+ * Parses JSON files into {@link ArgumentBuilder}s for your {@link com.mojang.brigadier.CommandDispatcher}
+ */
 public final class JsonToBrigadier {
+    /**
+     * Parses a file at the path
+     *
+     * @param path The path to the JSON file
+     * @param <T>  The command context type
+     * @param <S>  The {@link ArgumentBuilder} self type
+     * @return An {@link ArgumentBuilder} for the JSON file
+     */
     public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(Path path) {
         String file;
         try {
@@ -46,7 +56,19 @@ public final class JsonToBrigadier {
             System.err.println("Invalid path to JSON file");
             throw new RuntimeException(e);
         }
-        JsonObject commandObject = JsonParser.parseString(file).getAsJsonObject();
+        return parse(file);
+    }
+
+    /**
+     * Parses a json string
+     *
+     * @param json The string for the json
+     * @param <T>  The command context type
+     * @param <S>  The {@link ArgumentBuilder} self type
+     * @return An {@link ArgumentBuilder} for the JSON file
+     */
+    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(String json) {
+        JsonObject commandObject = JsonParser.parseString(json).getAsJsonObject();
 
         LiteralArgumentBuilder<T> argumentBuilder = LiteralArgumentBuilder.literal(commandObject.get("name").getAsString());
 

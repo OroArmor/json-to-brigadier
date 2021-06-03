@@ -1,6 +1,6 @@
 {
   "name": "test",
-  "argument" : {
+  "argument": {
     "type": "brigadier:literal"
   },
   "children": [

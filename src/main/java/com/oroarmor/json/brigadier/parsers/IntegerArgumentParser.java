@@ -34,7 +34,7 @@ public class IntegerArgumentParser {
     public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(JsonObject object) {
         IntegerArgumentType integerArgument;
         JsonObject argument = object.get("argument").getAsJsonObject();
-        if(argument.has("min")) {
+        if (argument.has("min")) {
             int min = argument.get("min").getAsInt();
             if (argument.has("max")) {
                 integerArgument = IntegerArgumentType.integer(min, argument.get("max").getAsInt());

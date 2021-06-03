@@ -24,10 +24,10 @@
 
 package com.oroarmor.json.brigadier;
 
+import java.util.Iterator;
+
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
-
-import java.util.Iterator;
 
 public class CommandNodeEquals {
     public static <S> boolean equals(CommandNode<S> node, CommandNode<S> otherNode) {

@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath "org.kohsuke:github-api:1.114"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"
     }
 }
 
@@ -15,6 +16,7 @@ plugins {
     id 'signing'
     id 'maven-publish'
 }
+apply plugin: 'io.codearte.nexus-staging'
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
@@ -140,6 +142,11 @@ if (project.hasProperty("sign")) {
         useGpgCmd()
         sign publishing.publications.getByName("mavenJava")
     }
+}
+
+nexusStaging {
+    username = "OroArmor"
+    password = project.hasProperty("ossrhPassword") ? project.property("ossrhPassword") : System.getenv("OSSRH_PASSWORD")
 }
 
 import org.kohsuke.github.GHReleaseBuilder
