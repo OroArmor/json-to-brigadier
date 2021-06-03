@@ -33,7 +33,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 /**
@@ -81,7 +80,7 @@ public final class JsonToBrigadier {
             throw new IllegalArgumentException("Command is missing a name");
         }
 
-        ArgumentBuilder<T, S> builder = ArgumentParsers.get(commandObject.get("argument").getAsJsonObject().get("type").getAsString()).parse(commandObject);
+        ArgumentBuilder<T, S> builder = JsonArgumentParsers.get(commandObject.get("argument").getAsJsonObject().get("type").getAsString()).parse(commandObject);
         addChildren(builder, commandObject);
 
         if (commandObject.has("executes")) {
@@ -89,21 +88,26 @@ public final class JsonToBrigadier {
             Class<?> executeClass;
             try {
                 executeClass = JsonToBrigadier.class.getClassLoader().loadClass(description[0]);
+                try {
+                    final Method method = executeClass.getDeclaredMethod(description[1], CommandContext.class);
+                    builder.executes(source -> {
+                        try {
+                            return (Integer) method.invoke(null, source);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } catch (NoSuchMethodException e) {
+                    builder.executes(source -> {
+                        System.err.println("Unable to find method for " + commandObject.get("executes"));
+                        return 0;
+                    });
+                }
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-
-            try {
-                final Method method = executeClass.getDeclaredMethod(description[1], CommandContext.class);
                 builder.executes(source -> {
-                    try {
-                        return (Integer) method.invoke(null, source);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                    System.err.println("Unable to find method for " + commandObject.get("executes"));
+                    return 0;
                 });
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
             }
         }
 

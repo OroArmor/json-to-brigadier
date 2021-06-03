@@ -22,17 +22,7 @@
  * SOFTWARE.
  */
 
+/**
+ * The Impl package for the library
+ */
 package com.oroarmor.json.brigadier.parsers;
-
-import com.google.gson.JsonObject;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-
-public class BooleanArgumentParser {
-    @SuppressWarnings("unchecked")
-    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(JsonObject object) {
-        BoolArgumentType booleanArgument = BoolArgumentType.bool();
-        return (ArgumentBuilder<T, S>) RequiredArgumentBuilder.argument(object.get("name").getAsString(), booleanArgument);
-    }
-}

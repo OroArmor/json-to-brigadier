@@ -1,0 +1,44 @@
+{
+  "name": "test",
+  "argument": {
+    "type": "brigadier:literal"
+  },
+  "children": [
+    {
+      "name": "integer",
+      "argument": {
+        "type": "brigadier:literal"
+      },
+      "children": [
+        {
+          "name": "value",
+          "argument": {
+            "type": "brigadier:integer",
+            "min": 0,
+            "max": 1
+          },
+          "executes": "com.oroarmor.json.brigadier.TestComplexCommand::runCommandInteger"
+        }
+      ],
+      "executes": "com.oroarmor.json.brigadier.TestComplexCommand::runCommandIntegerDefault"
+    },
+    {
+      "name": "double",
+      "argument": {
+        "type": "brigadier:literal"
+      },
+      "children": [
+        {
+          "name": "value",
+          "argument": {
+            "type": "brigadier:double",
+            "min": 0.0,
+            "max": 1.0
+          },
+          "executes": "com.oroarmor.json.brigadier.TestComplexCommand::runCommandDouble"
+        }
+      ],
+      "executes": "com.oroarmor.json.brigadier.TestComplexCommand::runCommandDoubleDefault"
+    }
+  ]
+}

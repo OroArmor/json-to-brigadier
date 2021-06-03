@@ -33,19 +33,19 @@ import com.oroarmor.json.brigadier.parsers.*;
 
 /**
  * The different argument parsers for the different argument types that brigadier supports.
- * More parsers can be added with {@link ArgumentParsers#register(String, ArgumentParser)}
+ * More parsers can be added with {@link JsonArgumentParsers#register(String, ArgumentParser)}
  */
-public class ArgumentParsers {
+public final class JsonArgumentParsers {
     private static final Map<String, ArgumentParser> PARSERS = new HashMap<>();
 
     static {
-        register("brigadier:literal", LiteralArgumentParser::parse);
-        register("brigadier:integer", IntegerArgumentParser::parse);
-        register("brigadier:boolean", BooleanArgumentParser::parse);
-        register("brigadier:double", DoubleArgumentParser::parse);
-        register("brigadier:float", FloatArgumentParser::parse);
-        register("brigadier:string", StringArgumentParser::parse);
-        register("brigadier:long", LongArgumentParser::parse);
+        register("brigadier:literal", JsonToBrigadierParsers::parseLiteral);
+        register("brigadier:integer", JsonToBrigadierParsers::parseInteger);
+        register("brigadier:boolean", JsonToBrigadierParsers::parseBoolean);
+        register("brigadier:double", JsonToBrigadierParsers::parseDouble);
+        register("brigadier:float", JsonToBrigadierParsers::parseFloat);
+        register("brigadier:string", JsonToBrigadierParsers::parseString);
+        register("brigadier:long", JsonToBrigadierParsers::parseLong);
     }
 
     /**

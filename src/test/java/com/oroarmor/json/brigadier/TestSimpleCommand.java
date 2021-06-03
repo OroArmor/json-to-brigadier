@@ -28,6 +28,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -39,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestSimpleCommand {
     private static boolean runSuccessful = false;
@@ -49,7 +52,7 @@ public class TestSimpleCommand {
     }
 
     @Test
-    public void testParse() throws URISyntaxException {
+    public void testParseFromJson() throws URISyntaxException {
         CommandNode<Object> manualCommandNode = literal("test")
                 .then(argument("value", integer(0, 1))
                         .executes(TestSimpleCommand::runCommand))
@@ -79,5 +82,26 @@ public class TestSimpleCommand {
         dispatcher.register(jsonCommandNode);
         dispatcher.execute("test 1", new Object());
         Assertions.assertTrue(runSuccessful, "Json command ran successfully");
+    }
+
+    @Test
+    public void testParseToJson(){
+        CommandNode<Object> manualCommandNode = literal("test")
+                .then(argument("value", integer(0, 1))
+                        .executes(new Command<>() {
+                            @Override
+                            public int run(CommandContext<Object> context) {
+                                return TestSimpleCommand.runCommand(context);
+                            }
+
+                            @Override
+                            public String toString() {
+                                return "com.oroarmor.json.brigadier.TestSimpleCommand::runCommand";
+                            }
+                        }))
+                .build();
+
+        String json = new GsonBuilder().setPrettyPrinting().create().toJson(BrigadierToJson.parseObject(manualCommandNode));
+        assertTrue(CommandNodeEquals.equals(manualCommandNode, JsonToBrigadier.parse(json).build()), "correct inverse parsing");
     }
 }
