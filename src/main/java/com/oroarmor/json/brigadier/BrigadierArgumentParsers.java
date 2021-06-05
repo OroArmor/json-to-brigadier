@@ -55,13 +55,16 @@ public final class BrigadierArgumentParsers {
      * @return The parser
      */
     public static CommandNodeParser get(Class<? extends ArgumentType<?>> type) {
+        if (!PARSERS.containsKey(type)) {
+            throw new IllegalArgumentException("Type " + type + " not found");
+        }
         return PARSERS.get(type);
     }
 
     /**
      * Register a new parser type
      *
-     * @param clazz   The class of the argument type
+     * @param clazz  The class of the argument type
      * @param parser The parser for the class
      */
     public static void register(Class<? extends ArgumentType<?>> clazz, CommandNodeParser parser) {
@@ -82,7 +85,6 @@ public final class BrigadierArgumentParsers {
          * @param argument The JsonObject to store the properties of the argument into
          * @param type     The argument type to parse
          * @param <T>      The type of the argument type
-         * @return An {@link ArgumentBuilder} representing this command node only
          */
         <T> void parse(JsonObject argument, ArgumentType<T> type);
     }

@@ -69,6 +69,9 @@ public final class JsonArgumentParsers {
      * @return The parser
      */
     public static ArgumentParser get(String type) {
+        if (!PARSERS.containsKey(type)) {
+            throw new IllegalArgumentException("Type " + type + " not found");
+        }
         return PARSERS.get(type);
     }
 
