@@ -28,17 +28,22 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Predicate;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+
+import static com.oroarmor.json.brigadier.StringConstants.*;
 
 /**
  * Parses JSON files into {@link ArgumentBuilder}s for your {@link com.mojang.brigadier.CommandDispatcher}
  */
 public final class JsonToBrigadier {
+
     /**
      * Parses a file at the path
      *
@@ -72,41 +77,72 @@ public final class JsonToBrigadier {
     }
 
     private static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parseCommand(JsonObject commandObject) {
-        if (!commandObject.has("argument")) {
+        if (!commandObject.has(ARGUMENT)) {
             throw new IllegalArgumentException("Command is missing an argument type");
         }
 
-        if (!commandObject.has("name")) {
+        if (!commandObject.has(NAME)) {
             throw new IllegalArgumentException("Command is missing a name");
         }
 
         ArgumentBuilder<T, S> builder = JsonArgumentParsers.get(commandObject.get("argument").getAsJsonObject().get("type").getAsString()).parse(commandObject);
         addChildren(builder, commandObject);
 
-        if (commandObject.has("executes")) {
-            String[] description = commandObject.get("executes").getAsString().split("::");
+        if (commandObject.has(EXECUTES)) {
+            String[] description = commandObject.get(EXECUTES).getAsString().split("::");
             Class<?> executeClass;
             try {
-                executeClass = JsonToBrigadier.class.getClassLoader().loadClass(description[0]);
-                try {
-                    final Method method = executeClass.getDeclaredMethod(description[1], CommandContext.class);
-                    builder.executes(source -> {
+                executeClass = Thread.currentThread().getContextClassLoader().loadClass(description[0]);
+                final Method method = executeClass.getDeclaredMethod(description[1], CommandContext.class);
+                builder.executes(new Command<T>() {
+                    @Override
+                    public int run(CommandContext<T> context) {
                         try {
-                            return (Integer) method.invoke(null, source);
+                            return (Integer) method.invoke(null, context);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
-                    });
-                } catch (NoSuchMethodException e) {
-                    builder.executes(source -> {
-                        System.err.println("Unable to find method for " + commandObject.get("executes"));
-                        return 0;
-                    });
-                }
-            } catch (ClassNotFoundException e) {
+                    }
+
+                    @Override
+                    public String toString() {
+                        return commandObject.get(EXECUTES).getAsString();
+                    }
+                });
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                System.err.println(e.getMessage());
                 builder.executes(source -> {
-                    System.err.println("Unable to find method for " + commandObject.get("executes"));
+                    System.err.println("Unable to find method for " + commandObject.get(EXECUTES));
                     return 0;
+                });
+            }
+        }
+
+        if (commandObject.has(REQUIRES)) {
+            String[] description = commandObject.get(REQUIRES).getAsString().split("::");
+            Class<?> executeClass;
+            try {
+                executeClass = Thread.currentThread().getContextClassLoader().loadClass(description[0]);
+                final Method method = executeClass.getDeclaredMethod(description[1], Object.class);
+                builder.requires(new Predicate<T>() {
+                    public boolean test(T context) {
+                        try {
+                            return (Boolean) method.invoke(null, context);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    @Override
+                    public String toString() {
+                        return commandObject.get(REQUIRES).getAsString();
+                    }
+                });
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                System.err.println(e.getMessage());
+                builder.requires(source -> {
+                    System.err.println("Unable to find method for " + commandObject.get(REQUIRES));
+                    return false;
                 });
             }
         }
@@ -115,11 +151,11 @@ public final class JsonToBrigadier {
     }
 
     private static <T, S extends ArgumentBuilder<T, S>> void addChildren(ArgumentBuilder<T, S> argumentBuilder, JsonObject commandObject) {
-        if (!commandObject.has("children")) {
+        if (!commandObject.has(CHILDREN)) {
             return;
         }
 
-        for (JsonElement child : commandObject.get("children").getAsJsonArray()) {
+        for (JsonElement child : commandObject.get(CHILDREN).getAsJsonArray()) {
             argumentBuilder.then(parseCommand(child.getAsJsonObject()));
         }
     }

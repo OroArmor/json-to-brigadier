@@ -25,7 +25,6 @@
 package com.oroarmor.json.brigadier;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.mojang.brigadier.tree.ArgumentCommandNode;
@@ -39,7 +38,7 @@ public class CommandNodeEquals {
                     return false;
                 }
             }
-            return bothHaveCommands(node, otherNode) && childrenAreEqual(node, otherNode);
+            return bothHaveCommands(node, otherNode) && bothHaveRequires(node, otherNode) && childrenAreEqual(node, otherNode);
         }
         return false;
     }
@@ -61,5 +60,9 @@ public class CommandNodeEquals {
 
     private static <S> boolean bothHaveCommands(CommandNode<S> node, CommandNode<S> otherNode) {
         return (node.getCommand() != null) == (otherNode.getCommand() != null);
+    }
+
+    private static <S> boolean bothHaveRequires(CommandNode<S> node, CommandNode<S> otherNode) {
+        return (node.getRequirement() != null) == (otherNode.getRequirement() != null);
     }
 }

@@ -1,3 +1,8 @@
+Version 1.3.0
+- Added `requires` to JSON parsing
+- Better error reporting
+- Clean up
+----
 Version 1.2.0
 - Added way to convert command to json
     - This is semi-operational as there is no way to fully recover lambdas

@@ -29,7 +29,7 @@ import java.util.Map;
 
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.oroarmor.json.brigadier.parsers.*;
+import com.oroarmor.json.brigadier.parsers.JsonToBrigadierParsers;
 
 /**
  * The different argument parsers for the different argument types that brigadier supports.

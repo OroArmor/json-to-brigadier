@@ -28,8 +28,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import com.google.gson.GsonBuilder;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -66,6 +64,10 @@ public class TestComplexCommand {
         return 1;
     }
 
+    public static boolean requires(Object o) {
+        return o != null;
+    }
+
     @Test
     public void testParse() throws URISyntaxException {
         CommandNode<Object> manualCommandNode = literal("test")
@@ -87,6 +89,7 @@ public class TestComplexCommand {
     @Test
     public void testRunCommand() throws URISyntaxException, CommandSyntaxException {
         LiteralArgumentBuilder<Object> manualCommandNode = literal("test")
+                .requires(TestComplexCommand::requires)
                 .then(literal("integer")
                         .then(argument("value", integer(0, 1))
                                 .executes(TestComplexCommand::runCommandDouble))
@@ -107,9 +110,12 @@ public class TestComplexCommand {
 
         dispatcher = new CommandDispatcher<>();
         dispatcher.register(jsonCommandNode);
-        dispatcher.execute("test integer 1", new Object());
+        try {
+            dispatcher.execute("test integer 1", new Object());
+        } catch (CommandSyntaxException commandSyntaxException) {
+            System.err.println(commandSyntaxException.getMessage());
+        }
         assertTrue(runSuccessful, "Json command ran successfully");
-
     }
 
     @Test

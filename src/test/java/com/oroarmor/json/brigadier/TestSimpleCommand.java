@@ -85,7 +85,7 @@ public class TestSimpleCommand {
     }
 
     @Test
-    public void testParseToJson(){
+    public void testParseToJson() {
         CommandNode<Object> manualCommandNode = literal("test")
                 .then(argument("value", integer(0, 1))
                         .executes(new Command<>() {

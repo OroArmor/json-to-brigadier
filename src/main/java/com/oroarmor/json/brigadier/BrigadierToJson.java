@@ -39,6 +39,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 public final class BrigadierToJson {
     private static final JsonObject ROOT_ARGUMENT;
 
+    static {
+        ROOT_ARGUMENT = new JsonObject();
+        ROOT_ARGUMENT.addProperty(StringConstants.TYPE, "brigadier:root");
+    }
+
     /**
      * Parses a {@link com.mojang.brigadier.CommandDispatcher} into JSON. The root command is listed.
      *
@@ -48,14 +53,14 @@ public final class BrigadierToJson {
      */
     public static <T> JsonObject parseObject(CommandDispatcher<T> dispatcher) {
         JsonObject root = new JsonObject();
-        root.addProperty("name", "__root__");
-        root.add("argument", ROOT_ARGUMENT);
+        root.addProperty(StringConstants.NAME, "__root__");
+        root.add(StringConstants.ARGUMENT, ROOT_ARGUMENT);
 
         JsonArray array = new JsonArray();
         for (CommandNode<T> commandNode : dispatcher.getRoot().getChildren()) {
             array.add(parseObject(commandNode));
         }
-        root.add("children", array);
+        root.add(StringConstants.CHILDREN, array);
 
         return root;
     }
@@ -91,40 +96,44 @@ public final class BrigadierToJson {
      */
     public static <T> JsonObject parseObject(CommandNode<T> node) {
         JsonObject object = new JsonObject();
-        object.addProperty("name", node.getName());
+        object.addProperty(StringConstants.NAME, node.getName());
 
         JsonObject argument = new JsonObject();
 
         if (node instanceof LiteralCommandNode<T> literalCommandNode) {
-            argument.addProperty("type", "brigadier:literal");
+            argument.addProperty(StringConstants.TYPE, "brigadier:literal");
         } else if (node instanceof ArgumentCommandNode<T, ?> argumentCommandNode) {
             BrigadierArgumentParsers.get((Class<? extends ArgumentType<?>>) argumentCommandNode.getType().getClass()).parse(argument, argumentCommandNode.getType());
         }
 
-        object.add("argument", argument);
+        object.add(StringConstants.ARGUMENT, argument);
 
         if (node.getChildren().size() > 0) {
             JsonArray array = new JsonArray();
             for (CommandNode<T> commandNode : node.getChildren()) {
                 array.add(parseObject(commandNode));
             }
-            object.add("children", array);
+            object.add(StringConstants.CHILDREN, array);
         }
 
         if (node.getCommand() != null) {
             String value = node.getCommand().toString();
             if (value.matches("[\\w\\.]*::\\w*")) {
-                object.addProperty("executes", value);
+                object.addProperty(StringConstants.EXECUTES, value);
             } else {
-                object.addProperty("executes", "Unable to parse method. Method is in class " + value.split("\\$\\$")[0]);
+                object.addProperty(StringConstants.EXECUTES, "Unable to parse method. Method is in class " + value.split("\\$\\$")[0]);
+            }
+        }
+
+        if (node.getRequirement() != null) {
+            String value = node.getRequirement().toString();
+            if (value.matches("[\\w\\.]*::\\w*")) {
+                object.addProperty(StringConstants.REQUIRES, value);
+            } else {
+                object.addProperty(StringConstants.REQUIRES, "Unable to parse method. Method is in class " + value.split("\\$\\$")[0]);
             }
         }
 
         return object;
-    }
-
-    static {
-        ROOT_ARGUMENT = new JsonObject();
-        ROOT_ARGUMENT.addProperty("type", "brigadier:root");
     }
 }

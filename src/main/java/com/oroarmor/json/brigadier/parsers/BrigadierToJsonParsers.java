@@ -26,9 +26,6 @@ package com.oroarmor.json.brigadier.parsers;
 
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.*;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 
 public final class BrigadierToJsonParsers {
     public static <T> void parseBoolean(JsonObject argument, ArgumentType<T> argumentType) {
@@ -38,7 +35,7 @@ public final class BrigadierToJsonParsers {
     public static <T> void parseDouble(JsonObject argument, ArgumentType<T> argumentType) {
         argument.addProperty("type", "brigadier:double");
         DoubleArgumentType doubleArgument = (DoubleArgumentType) argumentType;
-        if(doubleArgument.getMaximum() != Double.MAX_VALUE) {
+        if (doubleArgument.getMaximum() != Double.MAX_VALUE) {
             argument.addProperty("max", doubleArgument.getMaximum());
             argument.addProperty("min", doubleArgument.getMinimum());
         } else if (doubleArgument.getMinimum() != -Double.MAX_VALUE) {
@@ -49,7 +46,7 @@ public final class BrigadierToJsonParsers {
     public static <T> void parseFloat(JsonObject argument, ArgumentType<T> argumentType) {
         argument.addProperty("type", "brigadier:float");
         FloatArgumentType floatArgument = (FloatArgumentType) argumentType;
-        if(floatArgument.getMaximum() != Float.MAX_VALUE) {
+        if (floatArgument.getMaximum() != Float.MAX_VALUE) {
             argument.addProperty("max", floatArgument.getMaximum());
             argument.addProperty("min", floatArgument.getMinimum());
         } else if (floatArgument.getMinimum() != -Float.MAX_VALUE) {
@@ -60,7 +57,7 @@ public final class BrigadierToJsonParsers {
     public static <T> void parseInteger(JsonObject argument, ArgumentType<T> argumentType) {
         argument.addProperty("type", "brigadier:integer");
         IntegerArgumentType integerArgument = (IntegerArgumentType) argumentType;
-        if(integerArgument.getMaximum() != Integer.MAX_VALUE) {
+        if (integerArgument.getMaximum() != Integer.MAX_VALUE) {
             argument.addProperty("max", integerArgument.getMaximum());
             argument.addProperty("min", integerArgument.getMinimum());
         } else if (integerArgument.getMinimum() != -Integer.MAX_VALUE) {
@@ -73,7 +70,7 @@ public final class BrigadierToJsonParsers {
     public static <T> void parseLong(JsonObject argument, ArgumentType<T> argumentType) {
         argument.addProperty("type", "brigadier:long");
         LongArgumentType longArgument = (LongArgumentType) argumentType;
-        if(longArgument.getMaximum() != Long.MAX_VALUE) {
+        if (longArgument.getMaximum() != Long.MAX_VALUE) {
             argument.addProperty("max", longArgument.getMaximum());
             argument.addProperty("min", longArgument.getMinimum());
         } else if (longArgument.getMinimum() != -Long.MAX_VALUE) {

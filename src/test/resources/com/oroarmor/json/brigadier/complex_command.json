@@ -3,6 +3,7 @@
   "argument": {
     "type": "brigadier:literal"
   },
+  "requires": "com.oroarmor.json.brigadier.TestComplexCommand::requires",
   "children": [
     {
       "name": "integer",
