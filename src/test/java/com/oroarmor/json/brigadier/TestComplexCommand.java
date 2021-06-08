@@ -81,7 +81,7 @@ public class TestComplexCommand {
                         .executes(TestComplexCommand::runCommandDoubleDefault))
                 .build();
 
-        CommandNode<Object> jsonCommandNode = JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestComplexCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/complex_command.json")).toURI())).build();
+        CommandNode<Object> jsonCommandNode = JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestComplexCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/complex_command.json")).toURI()), Object.class).build();
 
         assertTrue(CommandNodeEquals.equals(manualCommandNode, jsonCommandNode), "Parser correctly parses command from json");
     }
@@ -99,7 +99,7 @@ public class TestComplexCommand {
                                 .executes(TestComplexCommand::runCommandDouble))
                         .executes(TestComplexCommand::runCommandDoubleDefault));
 
-        LiteralArgumentBuilder<Object> jsonCommandNode = (LiteralArgumentBuilder<Object>) JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestComplexCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/complex_command.json")).toURI()));
+        LiteralArgumentBuilder<Object> jsonCommandNode = (LiteralArgumentBuilder<Object>) JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestComplexCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/complex_command.json")).toURI()), Object.class);
 
 
         CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
@@ -131,6 +131,6 @@ public class TestComplexCommand {
                         .executes(TestComplexCommand::runCommandDoubleDefault))
                 .build();
 
-        assertTrue(CommandNodeEquals.equals(manualCommandNode, JsonToBrigadier.parse(BrigadierToJson.parse(manualCommandNode)).build()), "correct inverse parsing");
+        assertTrue(CommandNodeEquals.equals(manualCommandNode, JsonToBrigadier.parse(BrigadierToJson.parse(manualCommandNode), Object.class).build()), "correct inverse parsing");
     }
 }

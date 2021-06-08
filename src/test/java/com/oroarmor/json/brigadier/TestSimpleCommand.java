@@ -58,7 +58,7 @@ public class TestSimpleCommand {
                         .executes(TestSimpleCommand::runCommand))
                 .build();
 
-        CommandNode<Object> jsonCommandNode = JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestSimpleCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/test_command.json")).toURI())).build();
+        CommandNode<Object> jsonCommandNode = JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestSimpleCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/test_command.json")).toURI()), Object.class).build();
 
         Assertions.assertTrue(CommandNodeEquals.equals(manualCommandNode, jsonCommandNode), "Parser correctly parses command from json");
     }
@@ -69,7 +69,7 @@ public class TestSimpleCommand {
                 .then(argument("value", integer(0, 1))
                         .executes(TestSimpleCommand::runCommand));
 
-        LiteralArgumentBuilder<Object> jsonCommandNode = (LiteralArgumentBuilder<Object>) JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestSimpleCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/test_command.json")).toURI()));
+        LiteralArgumentBuilder<Object> jsonCommandNode = (LiteralArgumentBuilder<Object>) JsonToBrigadier.parse(Paths.get(Objects.requireNonNull(TestSimpleCommand.class.getClassLoader().getResource("com/oroarmor/json/brigadier/test_command.json")).toURI()), Object.class);
 
 
         CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
@@ -102,6 +102,6 @@ public class TestSimpleCommand {
                 .build();
 
         String json = new GsonBuilder().setPrettyPrinting().create().toJson(BrigadierToJson.parseObject(manualCommandNode));
-        assertTrue(CommandNodeEquals.equals(manualCommandNode, JsonToBrigadier.parse(json).build()), "correct inverse parsing");
+        assertTrue(CommandNodeEquals.equals(manualCommandNode, JsonToBrigadier.parse(json, Object.class).build()), "correct inverse parsing");
     }
 }

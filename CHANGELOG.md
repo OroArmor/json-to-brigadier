@@ -1,3 +1,6 @@
+Version 1.3.1
+- Fix an issue with different context classes not being found
+----
 Version 1.3.0
 - Added `requires` to JSON parsing
 - Better error reporting

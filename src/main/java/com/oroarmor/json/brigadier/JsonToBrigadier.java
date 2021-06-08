@@ -47,12 +47,13 @@ public final class JsonToBrigadier {
     /**
      * Parses a file at the path
      *
-     * @param path The path to the JSON file
-     * @param <T>  The command context type
-     * @param <S>  The {@link ArgumentBuilder} self type
+     * @param path         The path to the JSON file
+     * @param contextClass The class for the context that the command executes in
+     * @param <T>          The command context type
+     * @param <S>          The {@link ArgumentBuilder} self type
      * @return An {@link ArgumentBuilder} for the JSON file
      */
-    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(Path path) {
+    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(Path path, Class<T> contextClass) {
         String file;
         try {
             file = String.join("\n", Files.readAllLines(path));
@@ -60,23 +61,24 @@ public final class JsonToBrigadier {
             System.err.println("Invalid path to JSON file");
             throw new RuntimeException(e);
         }
-        return parse(file);
+        return parse(file, contextClass);
     }
 
     /**
      * Parses a json string
      *
-     * @param json The string for the json
-     * @param <T>  The command context type
-     * @param <S>  The {@link ArgumentBuilder} self type
+     * @param json         The string for the json
+     * @param contextClass The class for the context that the command executes in
+     * @param <T>          The command context type
+     * @param <S>          The {@link ArgumentBuilder} self type
      * @return An {@link ArgumentBuilder} for the JSON file
      */
-    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(String json) {
+    public static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parse(String json, Class<T> contextClass) {
         JsonObject commandObject = JsonParser.parseString(json).getAsJsonObject();
-        return parseCommand(commandObject);
+        return parseCommand(commandObject, contextClass);
     }
 
-    private static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parseCommand(JsonObject commandObject) {
+    private static <T, S extends ArgumentBuilder<T, S>> ArgumentBuilder<T, S> parseCommand(JsonObject commandObject, Class<T> contextClass) {
         if (!commandObject.has(ARGUMENT)) {
             throw new IllegalArgumentException("Command is missing an argument type");
         }
@@ -86,7 +88,11 @@ public final class JsonToBrigadier {
         }
 
         ArgumentBuilder<T, S> builder = JsonArgumentParsers.get(commandObject.get("argument").getAsJsonObject().get("type").getAsString()).parse(commandObject);
-        addChildren(builder, commandObject);
+        if (commandObject.has(CHILDREN)) {
+            for (JsonElement child : commandObject.get(CHILDREN).getAsJsonArray()) {
+                builder.then(parseCommand(child.getAsJsonObject(), contextClass));
+            }
+        }
 
         if (commandObject.has(EXECUTES)) {
             String[] description = commandObject.get(EXECUTES).getAsString().split("::");
@@ -123,7 +129,7 @@ public final class JsonToBrigadier {
             Class<?> executeClass;
             try {
                 executeClass = Thread.currentThread().getContextClassLoader().loadClass(description[0]);
-                final Method method = executeClass.getDeclaredMethod(description[1], Object.class);
+                final Method method = executeClass.getDeclaredMethod(description[1], contextClass);
                 builder.requires(new Predicate<T>() {
                     public boolean test(T context) {
                         try {
@@ -148,15 +154,5 @@ public final class JsonToBrigadier {
         }
 
         return builder;
-    }
-
-    private static <T, S extends ArgumentBuilder<T, S>> void addChildren(ArgumentBuilder<T, S> argumentBuilder, JsonObject commandObject) {
-        if (!commandObject.has(CHILDREN)) {
-            return;
-        }
-
-        for (JsonElement child : commandObject.get(CHILDREN).getAsJsonArray()) {
-            argumentBuilder.then(parseCommand(child.getAsJsonObject()));
-        }
     }
 }
