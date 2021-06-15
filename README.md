@@ -10,6 +10,10 @@ Add `mavenCentral()` to the repositories section of your `build.gradle`
 
 Add the dependency via `implementation "com.oroarmor:json-to-brigadier:1.0.0`
 
+Update gson by adding the dependency via `implementation 'com.google.code.gson:gson:2.8.7'`
+
+Change your Gradle JVM to `Java 16` and edit build.gradle to use `JavaVersion.VERSION_16`
+
 ### Code
 
 The API has two main methods to use. `JsonToBrigadier.parse(Path)` and `JsonToBrigadier.parse(String)`. The first method takes in a path to the file, and then calls the second with the contents of that file. They both return an `ArgumentBuilder` object representing the command structure specified by the JSON string or file.
@@ -38,7 +42,8 @@ Example:
 }
 ```
 ```java
-ArgumentBuilder<T, S> builder = JsonToBrigadier.parse(json);
+ArgumentBuilder<T, S> builder = JsonToBrigadier.parse(json, ServerCommandSource.class);
+dispatcher.register(builder);
 ```
 
 is the same as writing
@@ -46,6 +51,7 @@ is the same as writing
 ArgumentBuilder<T, S> builder = literal("test")
     .then(argument("value", integer(0, 1))
         .executes(TestSimpleCommand::runCommand));
+dispatcher.register(builder);
 ```
 
 ### Supported Types
